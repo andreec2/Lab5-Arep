@@ -12,12 +12,12 @@ import com.example.Repository.PropietyRepository;
 import com.example.Model.Propiety;
 
 @RestController
-@RequestMapping("/propiety")
+@RequestMapping("/api/propiety")
 public class PropietyController {
 
-    
+
     private final ServicePropiety servicePropiety;
-    
+
     @Autowired
     public PropietyController(ServicePropiety servicePropiety) {
         this.servicePropiety = servicePropiety;
@@ -37,6 +37,17 @@ public class PropietyController {
     public ResponseEntity<Propiety> createPropiety(@RequestBody Propiety propiety) {
         Propiety savedPropiety = servicePropiety.savePropiety(propiety);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPropiety);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Propiety> updatePropiety(@PathVariable long id, @RequestBody Propiety propiety) {
+        return servicePropiety.getPropietieById(id)
+                .map(existingPropiety -> {
+                    propiety.setIdPropiety(id); // Aseguramos que el ID sea el correcto
+                    Propiety updatedPropiety = servicePropiety.savePropiety(propiety);
+                    return ResponseEntity.ok(updatedPropiety);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
